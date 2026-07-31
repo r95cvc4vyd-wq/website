@@ -52,6 +52,17 @@
             padding: 20px;
         }
 
+        /* Logo / Bild über dem Countdown */
+        .header-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%; /* Macht das Bild kreisrund */
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 120, 0, 0.4);
+            box-shadow: 0 0 25px rgba(255, 80, 0, 0.4);
+        }
+
         .countdown {
             display: flex;
             justify-content: center;
@@ -109,6 +120,7 @@
         }
 
         @media (max-width: 600px) {
+            .header-image { width: 90px; height: 90px; margin-bottom: 20px; }
             .number { font-size: 2.5rem; }
             .time-box { min-width: 65px; padding: 12px 6px; }
             .countdown { gap: 10px; }
@@ -123,6 +135,9 @@
     <div class="overlay"></div>
 
     <div class="container">
+        <!-- BILD ÜBER DEM COUNTDOWN (Ersetze 'logo.jpg' durch den Namen deines Bildes) -->
+        <img src="logo.jpg" alt="Logo" class="header-image">
+
         <div class="countdown">
             <div class="time-box">
                 <span class="number" id="days">0000</span>
@@ -189,7 +204,6 @@
         const flameCount = 200;
         const sparkCount = 60;
 
-        // Haupt-Flammenpartikel
         class FlameParticle {
             constructor() {
                 this.reset();
@@ -222,17 +236,16 @@
                 ctx.save();
                 ctx.globalCompositeOperation = "lighter";
                 
-                // Verlauf von Weiß/Gelb (Kern) zu Red/Smoke (Rand)
                 const gradient = ctx.createRadialGradient(
                     this.x, this.y, 0,
                     this.x, this.y, this.size
                 );
 
                 const alpha = Math.max(0, this.life);
-                gradient.addColorStop(0, `rgba(255, 255, 200, ${alpha * 0.8})`); // Glühender Kern
-                gradient.addColorStop(0.2, `rgba(255, 180, 0, ${alpha * 0.6})`);  // Helles Gelb/Orange
-                gradient.addColorStop(0.6, `rgba(230, 40, 0, ${alpha * 0.3})`);   // Tiefes Rot
-                gradient.addColorStop(1, `rgba(40, 0, 0, 0)`);                   // Auslaufen zu Rauch
+                gradient.addColorStop(0, `rgba(255, 255, 200, ${alpha * 0.8})`);
+                gradient.addColorStop(0.2, `rgba(255, 180, 0, ${alpha * 0.6})`);
+                gradient.addColorStop(0.6, `rgba(230, 40, 0, ${alpha * 0.3})`);
+                gradient.addColorStop(1, `rgba(40, 0, 0, 0)`);
 
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -242,7 +255,6 @@
             }
         }
 
-        // Aufsteigende Funken
         class SparkParticle {
             constructor() {
                 this.reset();
@@ -287,7 +299,6 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Feuer-Basisglühen ganz unten am Bildrand
             ctx.save();
             ctx.globalCompositeOperation = "lighter";
             const baseGlow = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - 150);
@@ -297,7 +308,6 @@
             ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
             ctx.restore();
 
-            // Flammen & Funken zeichnen
             flameParticles.forEach(p => { p.update(); p.draw(); });
             sparkParticles.forEach(p => { p.update(); p.draw(); });
 
