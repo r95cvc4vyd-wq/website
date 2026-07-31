@@ -19,12 +19,12 @@
             align-items: center;
             text-align: center;
             color: #ffffff;
-            background-color: #030106;
+            background-color: #020005;
             overflow: hidden;
             position: relative;
         }
 
-        /* Canvas für das lodernde Feuer */
+        /* Canvas für die lodernden Flammen */
         #fireCanvas {
             position: absolute;
             top: 0;
@@ -34,15 +34,16 @@
             z-index: 1;
         }
 
-        /* Sanfte Abdunklung, damit die Schrift immer perfekt lesbar ist */
+        /* Vignetten-Overlay für Fokus auf den Text */
         .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at center, rgba(0, 0, 0, 0.25) 0%, rgba(3, 1, 6, 0.85) 100%);
+            background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(2, 0, 5, 0.85) 100%);
             z-index: 2;
+            pointer-events: none;
         }
 
         .container {
@@ -51,7 +52,6 @@
             padding: 20px;
         }
 
-        /* Schlichter Countdown */
         .countdown {
             display: flex;
             justify-content: center;
@@ -65,19 +65,19 @@
             flex-direction: column;
             align-items: center;
             min-width: 90px;
-            background: rgba(0, 0, 0, 0.55);
-            padding: 16px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 18px 14px;
             border-radius: 12px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 100, 0, 0.2);
-            box-shadow: 0 4px 25px rgba(255, 60, 0, 0.2);
+            border: 1px solid rgba(255, 120, 0, 0.25);
+            box-shadow: 0 4px 30px rgba(255, 60, 0, 0.25);
         }
 
         .number {
             font-size: 3.5rem;
             font-weight: 200;
             line-height: 1;
-            text-shadow: 0 0 15px rgba(255, 120, 0, 0.8);
+            text-shadow: 0 0 18px rgba(255, 140, 0, 0.9);
         }
 
         .label {
@@ -86,10 +86,9 @@
             letter-spacing: 2px;
             margin-top: 8px;
             opacity: 0.75;
-            color: #ffccaa;
+            color: #ffcca0;
         }
 
-        /* Schlichte Typografie für die Zeilen darunter */
         .text-section {
             font-weight: 300;
             letter-spacing: 1px;
@@ -106,10 +105,9 @@
             font-size: 1.8rem;
             font-weight: 400;
             letter-spacing: 2px;
-            text-shadow: 0 0 12px rgba(255, 80, 0, 0.6);
+            text-shadow: 0 0 15px rgba(255, 80, 0, 0.7);
         }
 
-        /* Responsives Layout für Smartphones */
         @media (max-width: 600px) {
             .number { font-size: 2.5rem; }
             .time-box { min-width: 65px; padding: 12px 6px; }
@@ -121,14 +119,10 @@
 </head>
 <body>
 
-    <!-- Animierter Flammen-Hintergrund -->
     <canvas id="fireCanvas"></canvas>
-    
-    <!-- Filter über dem Feuer -->
     <div class="overlay"></div>
 
     <div class="container">
-        <!-- Countdown -->
         <div class="countdown">
             <div class="time-box">
                 <span class="number" id="days">0000</span>
@@ -148,7 +142,6 @@
             </div>
         </div>
 
-        <!-- Schlichter Text -->
         <div class="text-section">
             <p>seid gespannt</p>
             <p>Live Launch Lars</p>
@@ -156,7 +149,7 @@
     </div>
 
     <script>
-        // --- COUNTDOWN LOGIK (Ziel: 01.05.2030) ---
+        // --- COUNTDOWN LOGIK ---
         const targetDate = new Date("May 1, 2030 00:00:00").getTime();
 
         function updateCountdown() {
@@ -180,7 +173,7 @@
         updateCountdown();
         setInterval(updateCountdown, 1000);
 
-        // --- ANIMATION: LODERNDE FLAMMEN ---
+        // --- REALISTISCHER FLAMMEN- & SPARKS-ANIMATION ---
         const canvas = document.getElementById("fireCanvas");
         const ctx = canvas.getContext("2d");
 
@@ -191,64 +184,127 @@
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
 
-        const particles = [];
-        const particleCount = 160; // Dichte der Flammenpartikel
+        const flameParticles = [];
+        const sparkParticles = [];
+        const flameCount = 200;
+        const sparkCount = 60;
 
-        class Particle {
+        // Haupt-Flammenpartikel
+        class FlameParticle {
             constructor() {
                 this.reset();
             }
 
             reset() {
                 this.x = Math.random() * canvas.width;
-                this.y = canvas.height + Math.random() * 60;
-                this.size = Math.random() * 32 + 16;
-                this.speedY = Math.random() * 3.5 + 1.5;
-                this.speedX = (Math.random() - 0.5) * 2;
+                this.y = canvas.height + Math.random() * 40;
+                this.size = Math.random() * 45 + 25;
+                this.speedY = Math.random() * 3 + 2;
+                this.speedX = (Math.random() - 0.5) * 1.8;
                 this.life = 1;
-                this.decay = Math.random() * 0.015 + 0.005;
-                
-                // Farbschema: Von hellem Gelb/Orange bis zu tiefem Feuerrot
-                const r = 255;
-                const g = Math.floor(Math.random() * 150);
-                const b = 0;
-                this.color = `rgba(${r}, ${g}, ${b},`;
+                this.maxLife = Math.random() * 0.5 + 0.5;
+                this.decay = Math.random() * 0.01 + 0.006;
+                this.wobbleSpeed = Math.random() * 0.05 + 0.02;
             }
 
             update() {
                 this.y -= this.speedY;
-                this.x += this.speedX + Math.sin(this.y * 0.015) * 0.6; // Leichtes lodern/wehen
+                this.x += Math.sin(this.y * this.wobbleSpeed) * 0.8 + this.speedX;
                 this.life -= this.decay;
-                this.size *= 0.975; // Partikel verjüngen sich nach oben
+                this.size *= 0.98;
 
-                if (this.life <= 0 || this.size <= 1) {
+                if (this.life <= 0 || this.size <= 2) {
                     this.reset();
                 }
             }
 
             draw() {
+                ctx.save();
+                ctx.globalCompositeOperation = "lighter";
+                
+                // Verlauf von Weiß/Gelb (Kern) zu Red/Smoke (Rand)
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.size
+                );
+
+                const alpha = Math.max(0, this.life);
+                gradient.addColorStop(0, `rgba(255, 255, 200, ${alpha * 0.8})`); // Glühender Kern
+                gradient.addColorStop(0.2, `rgba(255, 180, 0, ${alpha * 0.6})`);  // Helles Gelb/Orange
+                gradient.addColorStop(0.6, `rgba(230, 40, 0, ${alpha * 0.3})`);   // Tiefes Rot
+                gradient.addColorStop(1, `rgba(40, 0, 0, 0)`);                   // Auslaufen zu Rauch
+
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color + this.life + ")";
-                ctx.globalCompositeOperation = "lighter"; // Erzeugt das typische Glühen
+                ctx.fillStyle = gradient;
                 ctx.fill();
+                ctx.restore();
             }
         }
 
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+        // Aufsteigende Funken
+        class SparkParticle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height - Math.random() * 100;
+                this.size = Math.random() * 2.5 + 1;
+                this.speedY = Math.random() * 5 + 3;
+                this.speedX = (Math.random() - 0.5) * 3;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                this.life -= this.decay;
+
+                if (this.life <= 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalCompositeOperation = "lighter";
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 200, 80, ${this.life})`;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = "#ff8800";
+                ctx.fill();
+                ctx.restore();
+            }
         }
 
-        function animateFire() {
+        for (let i = 0; i < flameCount; i++) flameParticles.push(new FlameParticle());
+        for (let i = 0; i < sparkCount; i++) sparkParticles.push(new SparkParticle());
+
+        function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-            requestAnimationFrame(animateFire);
+
+            // Feuer-Basisglühen ganz unten am Bildrand
+            ctx.save();
+            ctx.globalCompositeOperation = "lighter";
+            const baseGlow = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - 150);
+            baseGlow.addColorStop(0, "rgba(255, 100, 0, 0.4)");
+            baseGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = baseGlow;
+            ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
+            ctx.restore();
+
+            // Flammen & Funken zeichnen
+            flameParticles.forEach(p => { p.update(); p.draw(); });
+            sparkParticles.forEach(p => { p.update(); p.draw(); });
+
+            requestAnimationFrame(animate);
         }
 
-        animateFire();
+        animate();
     </script>
 </body>
 </html>
