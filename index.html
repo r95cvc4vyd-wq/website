@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Launch Lars</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #ffffff;
+            
+            /* HINTERGRUNDBILD: Ersetze 'background.jpg' durch den Pfad zu deinem Bild */
+            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), 
+                        url('background.jpg') no-repeat center center/cover;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .time-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .number {
+            font-size: 3.5rem;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            opacity: 0.75;
+        }
+
+        .text-section {
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .text-section p:first-child {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .text-section p:last-child {
+            font-size: 1.8rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        /* Responsive Anpassung für Smartphones */
+        @media (max-width: 600px) {
+            .number { font-size: 2.5rem; }
+            .time-box { min-width: 60px; }
+            .countdown { gap: 12px; }
+            .text-section p:first-child { font-size: 1.2rem; }
+            .text-section p:last-child { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="countdown">
+            <div class="time-box">
+                <span class="number" id="days">00</span>
+                <span class="label">Tage</span>
+            </div>
+            <div class="time-box">
+                <span class="number" id="hours">00</span>
+                <span class="label">Stunden</span>
+            </div>
+            <div class="time-box">
+                <span class="number" id="minutes">00</span>
+                <span class="label">Minuten</span>
+            </div>
+            <div class="time-box">
+                <span class="number" id="seconds">00</span>
+                <span class="label">Sekunden</span>
+            </div>
+        </div>
+
+        <div class="text-section">
+            <p>Seid gespannt</p>
+            <p>Live Launch Lars</p>
+        </div>
+    </div>
+
+    <script>
+        // Ziel-Datum: 1. Mai 2030, 00:00:00 Uhr
+        const targetDate = new Date("May 1, 2030 00:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference > 0) {
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+                document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+                document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+                document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+            } else {
+                document.querySelector(".countdown").innerHTML = "<h2>Der Launch hat begonnen!</h2>";
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
